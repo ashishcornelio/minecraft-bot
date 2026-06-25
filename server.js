@@ -33,16 +33,12 @@ const io = new Server(httpServer, {
 
 const botManager = new BotManager(io);
 
-// Express Routes
-app.post('/api/connect', (req, res) => {
-  const { username, auth, owner } = req.body;
-  if (!username) {
-    return res.status(400).json({ error: 'Username is required.' });
-  }
-
-  // Load host and port from settings.json
+function getBotConfig() {
   let host = 'localhost';
   let port = 25565;
+  let username = 'AFK_Bot';
+  let auth = 'offline';
+
   try {
     const settingsPath = path.join(__dirname, 'settings.json');
     if (fs.existsSync(settingsPath)) {
@@ -50,20 +46,26 @@ app.post('/api/connect', (req, res) => {
       const settings = JSON.parse(data);
       if (settings.host) host = settings.host;
       if (settings.port !== undefined) port = settings.port;
+      if (settings.username) username = settings.username;
+      if (settings.auth) auth = settings.auth;
     }
   } catch (err) {
-    console.error('Failed to read settings.json during connect:', err);
+    console.error('Failed to read settings.json:', err);
   }
 
-  botManager.connect({
+  return {
     host,
     port: parseInt(port) || 25565,
     username,
     version: false, // Force auto-detect version
-    auth: auth || 'offline',
-    owner: owner || ''
-  });
+    auth
+  };
+}
 
+// Express Routes
+app.post('/api/connect', (req, res) => {
+  const config = getBotConfig();
+  botManager.connect(config);
   res.json({ success: true, message: 'Connection sequence started.' });
 });
 
@@ -160,4 +162,8 @@ httpServer.listen(PORT, () => {
   console.log(`========================================`);
   console.log(`Backend Server running on port ${PORT}`);
   console.log(`========================================`);
+  
+  // Auto-connect on startup using settings.json config
+  console.log('Auto-connecting bot on startup...');
+  botManager.connect(getBotConfig());
 });

@@ -152,11 +152,6 @@ export class BotManager {
       this.io.emit('chat_message', chatEntry);
       
       this.log(`[CHAT] <${username}> ${message}`, 'chat');
-
-      // Simple triggers for owner
-      if (this.config.owner && username === this.config.owner) {
-        this.handleOwnerCommand(message);
-      }
     });
 
     bot.on('health', () => {
@@ -211,26 +206,7 @@ export class BotManager {
     }, delay);
   }
 
-  handleOwnerCommand(message) {
-    if (message === '#come') {
-      const ownerEntity = this.bot.players[this.config.owner]?.entity;
-      if (ownerEntity) {
-        this.log(`Moving to owner: ${this.config.owner}`, 'info');
-        // mineflayer pathfinding could be integrated here, but we can do a direct look & step for simplicity
-        const p = ownerEntity.position;
-        this.bot.lookAt(p);
-        this.bot.setControlState('forward', true);
-        setTimeout(() => this.bot.setControlState('forward', false), 2000);
-      } else {
-        this.bot.chat(`I can't see you, ${this.config.owner}!`);
-      }
-    } else if (message === '#jump') {
-      this.bot.setControlState('jump', true);
-      setTimeout(() => this.bot.setControlState('jump', false), 250);
-    } else if (message === '#status') {
-      this.bot.chat(`Health: ${this.bot.health}/20, Food: ${this.bot.food}/20`);
-    }
-  }
+
 
   sendChat(message) {
     if (this.bot && this.status === 'spawned') {

@@ -1,4 +1,6 @@
 {
   "host": "localhost",
-  "port": 25565
+  "port": 25565,
+  "username": "AFK_Bot",
+  "auth": "offline"
 }

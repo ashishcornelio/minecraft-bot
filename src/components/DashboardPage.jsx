@@ -11,6 +11,7 @@ function DashboardPage({
   isLoopRunning,
   currentLoopIndex,
   loopSteps,
+  onConnect,
   onDisconnect,
   onSendChat,
   onStartLoop,
@@ -102,21 +103,34 @@ function DashboardPage({
               {getStatusBadge()}
             </div>
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              Connected to: <span className="text-white font-semibold">{config?.host}:{config?.port}</span> as <span className="text-[var(--accent-color)] font-bold">{config?.username}</span>
+              {status === 'disconnected' ? (
+                <span>Not connected to any server</span>
+              ) : (
+                <span>
+                  Connected to: <span className="text-white font-semibold">{config?.host}:{config?.port}</span> as <span className="text-[var(--accent-color)] font-bold">{config?.username}</span>
+                </span>
+              )}
             </p>
           </div>
         </div>
 
         {/* Top Controls */}
         <div className="flex items-center flex-wrap gap-3">
-
-
-          <button
-            onClick={onDisconnect}
-            className="btn btn-danger py-2 px-3 text-xs flex items-center gap-1.5"
-          >
-            <Power size={14} /> Disconnect
-          </button>
+          {status === 'disconnected' ? (
+            <button
+              onClick={onConnect}
+              className="btn btn-success py-2 px-3 text-xs flex items-center gap-1.5"
+            >
+              <Power size={14} /> Connect
+            </button>
+          ) : (
+            <button
+              onClick={onDisconnect}
+              className="btn btn-danger py-2 px-3 text-xs flex items-center gap-1.5"
+            >
+              <Power size={14} /> Disconnect
+            </button>
+          )}
         </div>
       </header>
 

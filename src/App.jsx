@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import HomePage from './components/HomePage';
 import DashboardPage from './components/DashboardPage';
 
 // Connect socket. Relative path works due to Vite proxy settings
@@ -70,12 +69,12 @@ function App() {
   }, []);
 
   // UI action handlers
-  const handleConnect = async (serverDetails) => {
+  const handleConnect = async () => {
     try {
       const response = await fetch('/api/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(serverDetails)
+        body: JSON.stringify({})
       });
       const data = await response.json();
       if (!data.success) {
@@ -133,27 +132,21 @@ function App() {
 
   return (
     <div className="app-container min-h-screen flex flex-col">
-      {status === 'disconnected' ? (
-        <HomePage 
-          onConnect={handleConnect} 
-          lastConfig={config}
-        />
-      ) : (
-        <DashboardPage 
-          status={status}
-          config={config}
-          botData={botData}
-          consoleLogs={consoleLogs}
-          chatLogs={chatLogs}
-          isLoopRunning={isLoopRunning}
-          currentLoopIndex={currentLoopIndex}
-          loopSteps={loopSteps}
-          onDisconnect={handleDisconnect}
-          onSendChat={handleSendChat}
-          onStartLoop={handleStartLoop}
-          onStopLoop={handleStopLoop}
-        />
-      )}
+      <DashboardPage 
+        status={status}
+        config={config}
+        botData={botData}
+        consoleLogs={consoleLogs}
+        chatLogs={chatLogs}
+        isLoopRunning={isLoopRunning}
+        currentLoopIndex={currentLoopIndex}
+        loopSteps={loopSteps}
+        onConnect={handleConnect}
+        onDisconnect={handleDisconnect}
+        onSendChat={handleSendChat}
+        onStartLoop={handleStartLoop}
+        onStopLoop={handleStopLoop}
+      />
     </div>
   );
 }
