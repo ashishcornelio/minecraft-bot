@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { BotManager } from './bot-manager.js';
@@ -34,16 +35,31 @@ const botManager = new BotManager(io);
 
 // Express Routes
 app.post('/api/connect', (req, res) => {
-  const { host, port, username, version, auth, owner } = req.body;
-  if (!host || !username) {
-    return res.status(400).json({ error: 'Host and username are required.' });
+  const { username, auth, owner } = req.body;
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required.' });
+  }
+
+  // Load host and port from settings.json
+  let host = 'localhost';
+  let port = 25565;
+  try {
+    const settingsPath = path.join(__dirname, 'settings.json');
+    if (fs.existsSync(settingsPath)) {
+      const data = fs.readFileSync(settingsPath, 'utf8');
+      const settings = JSON.parse(data);
+      if (settings.host) host = settings.host;
+      if (settings.port !== undefined) port = settings.port;
+    }
+  } catch (err) {
+    console.error('Failed to read settings.json during connect:', err);
   }
 
   botManager.connect({
     host,
-    port: port || 25565,
+    port: parseInt(port) || 25565,
     username,
-    version: version || '',
+    version: false, // Force auto-detect version
     auth: auth || 'offline',
     owner: owner || ''
   });
